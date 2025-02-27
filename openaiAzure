@@ -1,0 +1,47 @@
+!pip install openai==1.2.0 session-info --quiet
+
+from openai import AzureOpenAI
+import json
+import session_info
+
+session_info.show()
+
+config_data = {
+    "AZURE_OPENAI_KEY": "",
+    "AZURE_OPENAI_ENDPOINT": "",
+    "AZURE_OPENAI_APIVERSION": "2024-02-01",
+    "CHATGPT_MODEL": ""
+}
+
+file_path = 'config.json'  # Define the file path
+
+with open(file_path, 'w') as json_file:
+    json.dump(config_data, json_file, indent=4)
+
+# Open and read the contents of the JSON file
+with open(file_path, 'r') as json_file:
+    creds= json.load(json_file)
+
+# Credentials to authenticate to the personalized Open AI model server
+client = AzureOpenAI(
+ azure_endpoint=creds["AZURE_OPENAI_ENDPOINT"],
+ api_key=creds["AZURE_OPENAI_KEY"],
+ api_version=creds["AZURE_OPENAI_APIVERSION"]
+)
+
+# Deployment Nane of the Completion endpoint
+deployment_name = creds["CHATGPT_MODEL"]
+
+completion = client.chat.completions.create(
+    model="balajin-gpt-model",
+    messages=[
+        {
+            "role": "user",
+            "content": "You are an assistant to generate code for QA automation using java-selenium"+
+                       "Am an automation engineer using TestNG framework based code for" +
+                       "automating Login functionality of a website. Please create 1 positive and 1 negative scenario" +
+                       "Share the exact universal prompt template to achieve the same.",
+        },
+    ],
+)
+print(completion.choices[0].message.content)
